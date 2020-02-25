@@ -72,9 +72,15 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         plane.firstMaterial?.diffuse.contents = UIColor.blue
         let planeNode = SCNNode(geometry: plane)
         planeNode.eulerAngles.x = -Float.pi / 2
-        planeNode.opacity = 0.25
+        planeNode.opacity = 0.5
         
         node.addChildNode(planeNode)
+        
+        planeNode.runAction(waitRemoveAction)
+    }
+    
+    var waitRemoveAction: SCNAction {
+        return .sequence([.wait(duration: 5.0), .fadeOut(duration: 2.0), .removeFromParentNode()])
     }
     
     func nodeAdded(_ node: SCNNode, for imageAnchor: ARImageAnchor) {
