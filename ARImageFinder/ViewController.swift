@@ -24,18 +24,21 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         sceneView.showsStatistics = true
         
         // Create a new scene
-        let scene = SCNScene(named: "art.scnassets/ship.scn")!
+        //let scene = SCNScene(named: "art.scnassets/ship.scn")!
         
         // Set the scene to the view
-        sceneView.scene = scene
+        //sceneView.scene = scene
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
+        let referenceImages = ARReferenceImage.referenceImages(inGroupNamed: "AR Resources", bundle: nil)!
+        
         // Create a session configuration
         let configuration = ARWorldTrackingConfiguration()
-
+        configuration.detectionImages = referenceImages
+        
         // Run the view's session
         sceneView.session.run(configuration)
     }
@@ -48,6 +51,39 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     }
 
     // MARK: - ARSCNViewDelegate
+    func renderer(_ renderer: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
+        
+//        switch anchor {
+//            case let imageAnchor as ARImageAnchor:
+//                nodeAdded(node, for: imageAnchor)
+//            case let planeAnchor as ARPlaneAnchor:
+//                nodeAdded(node, for: planeAnchor)
+//            default:
+//                print("An anchor was discovered, but it is not for planes or images.")
+//        }
+        
+        guard let imageAnchor = anchor as? ARImageAnchor else {
+            return
+        }
+        
+        let referenceImage = imageAnchor.referenceImage
+        
+        let plane = SCNPlane(width: referenceImage.physicalSize.width, height: referenceImage.physicalSize.height)
+        plane.firstMaterial?.diffuse.contents = UIColor.blue
+        let planeNode = SCNNode(geometry: plane)
+        planeNode.eulerAngles.x = -Float.pi / 2
+        planeNode.opacity = 0.25
+        
+        node.addChildNode(planeNode)
+    }
+    
+    func nodeAdded(_ node: SCNNode, for imageAnchor: ARImageAnchor) {
+        // Handle image detection
+    }
+    
+    func nodeAdded(_ node: SCNNode, for imageAnchor: ARPlaneAnchor) {
+        // Handle plane detection
+    }
     
 /*
     // Override to create and configure nodes for anchors added to the view's session.
